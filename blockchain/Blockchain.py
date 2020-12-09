@@ -1,12 +1,14 @@
-from Block import Block
-from Transaction import Transaction
+from blockchain.Block import Block
+from blockchain.Transaction import Transaction
+from utils.utils import get_config
 
 
 class Blockchain:
     def __init__(self):
         self.chain = [self.create_genesis_block()]
         self.pending_transaction = []
-        self.difficulty = 2
+        self.config = get_config()
+        self.difficulty = self.config.blockchain.difficulty
         self.mining_reward = 100
 
     @staticmethod
@@ -54,6 +56,7 @@ class Blockchain:
         return balance
 
     def validate_chain(self):
+        # TODO add block index checking
         for i in range(1, len(self.chain)):
             current_block = self.chain[i]
             previous_block = self.chain[i - 1]
@@ -62,6 +65,9 @@ class Blockchain:
                 return False
 
             if current_block.previous_hash != previous_block.hash:
+                print(current_block)
+                print(previous_block)
+                print(2)
                 return False
 
         return True
