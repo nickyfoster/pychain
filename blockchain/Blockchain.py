@@ -65,9 +65,6 @@ class Blockchain:
                 return False
 
             if current_block.previous_hash != previous_block.hash:
-                print(current_block)
-                print(previous_block)
-                print(2)
                 return False
 
         return True
