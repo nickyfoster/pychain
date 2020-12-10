@@ -44,6 +44,7 @@ def nested_dataclass(*args, **kwargs):
 class BlockchainConfig:
     difficulty: int
     exclude_to_hash: list
+    mining_reward: int
 
 
 @nested_dataclass

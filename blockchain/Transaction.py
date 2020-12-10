@@ -1,3 +1,5 @@
+import time
+
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
@@ -11,6 +13,7 @@ class Transaction(BaseDataclass, ChainUnit):
     from_address: str
     to_address: str
     amount: int
+    timestamp: float = time.time()
     signature: str = None
 
     def sign_transaction(self, signing_key):

@@ -1,6 +1,7 @@
 import time
 from dataclasses import dataclass
 
+from blockchain.Transaction import Transaction
 from utils.utils import BaseDataclass, ChainUnit
 
 
@@ -22,7 +23,9 @@ class Block(BaseDataclass, ChainUnit):
 
     def has_valid_transaction(self):
         for transaction in self.transactions:
-            if not transaction.is_valid():
+            _transaction = Transaction.from_dict(transaction)
+
+            if not _transaction.is_valid():
                 return False
 
         return True

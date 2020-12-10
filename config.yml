@@ -1,5 +1,6 @@
 blockchain:
   difficulty: 2
+  mining_reward: 100
   exclude_to_hash:
     - hash
     - signature
