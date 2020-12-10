@@ -1,11 +1,21 @@
 import hashlib
 import inspect
 import json
+import logging
 from dataclasses import dataclass, is_dataclass
 from json import JSONDecodeError
+from logging.config import dictConfig
 from pathlib import Path
 
 import yaml
+
+from log_config import LOG_CONFIG
+
+
+def get_logger(name="main"):
+    logger = logging.getLogger(name)
+    dictConfig(LOG_CONFIG)
+    return logger
 
 
 @dataclass()
@@ -47,9 +57,18 @@ class BlockchainConfig:
     mining_reward: int
 
 
+@dataclass
+class RedisConfig:
+    host: str
+    port: int
+    password: str
+    db: int
+
+
 @nested_dataclass
 class PyChainConfig:
     blockchain: BlockchainConfig
+    redis: RedisConfig
 
 
 class ChainUnit:

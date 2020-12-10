@@ -7,6 +7,19 @@ from dataclasses import dataclass
 
 from utils.utils import BaseDataclass, ChainUnit, hex2bytes
 
+# TODO lookup how Bitcoin generates wallter address
+# https://medium.com/@tunatore/how-to-generate-bitcoin-addresses-technical-address-generation-explanation-and-online-course-a6b46a2fe866
+# TODO add sender_public_key to transaction
+# and check that address is generated from public key
+# TODO generate private key from random words
+"""
+
+key = "ca26b1359ee7ed099d61d361390a36e4e40fcd948d6c7e41dd28e43bb08e7339"
+private_key = ed25519.Ed25519PrivateKey.from_private_bytes(hex2bytes(key))
+address = private_key.public_key().public_bytes(encoding=serialization.Encoding.Raw,
+                                                format=serialization.PublicFormat.Raw).hex()
+"""
+
 
 @dataclass()
 class Transaction(BaseDataclass, ChainUnit):
@@ -37,15 +50,3 @@ class Transaction(BaseDataclass, ChainUnit):
             return True
         except InvalidSignature:
             return False
-
-
-if __name__ == '__main__':
-
-    private_key = ed25519.Ed25519PrivateKey.generate()
-    address = private_key.public_key().public_bytes(encoding=serialization.Encoding.Raw,
-                                                    format=serialization.PublicFormat.Raw).hex()
-
-    transaction = Transaction(amount=10, from_address=address,
-                              to_address="")
-    transaction.sign_transaction(private_key)
-    print(f"Is transaction valid: {transaction.is_valid()}")

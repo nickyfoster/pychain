@@ -13,13 +13,12 @@ class Block(BaseDataclass, ChainUnit):
     previous_hash: str = "0"
     hash: str = "0"
     nonce: int = 0
+    difficulty: int = None
 
     def mine_block(self, difficulty):
         while self.hash[0:difficulty] != "".join("0" for x in range(difficulty)):
             self.nonce += 1
             self.hash = self.calculate_hash()
-
-        print(f"Block mined: {self.hash}")
 
     def has_valid_transaction(self):
         for transaction in self.transactions:

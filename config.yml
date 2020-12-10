@@ -4,3 +4,9 @@ blockchain:
   exclude_to_hash:
     - hash
     - signature
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: admin
+  db: 0

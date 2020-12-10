@@ -14,17 +14,15 @@ address = private_key.public_key().public_bytes(encoding=serialization.Encoding.
                                                 format=serialization.PublicFormat.Raw).hex()
 chain = Blockchain()
 
-tx1 = Transaction(address, "public_key", 10)
-tx1.sign_transaction(private_key)
-chain.add_transaction(tx1)
+for x in range(2):
+    tx = Transaction(address, "public_key", 10)
+    tx.sign_transaction(private_key)
+    chain.add_transaction(tx)
 
-print("Starting the miner...")
+chain.logger.debug("Starting the miner...")
+chain.mine_pending_transaction(address)
 chain.mine_pending_transaction(address)
 
-print(f"Balance is: {chain.get_address_balance(address)}")
-
-chain.chain[1].transactions[0]["amount"] = 1
-print(f"Chain valid: {chain.validate_chain()}")
-
-# for block in chain.chain:
-#     pprint(vars(block))
+chain.mine_pending_transaction(address)
+chain.logger.debug(f"Balance is: {chain.get_address_balance(address)}")
+chain.logger.debug(f"Chain valid: {chain.validate_chain()}")
