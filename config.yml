@@ -2,3 +2,4 @@ blockchain:
   difficulty: 2
   exclude_to_hash:
     - hash
+    - signature

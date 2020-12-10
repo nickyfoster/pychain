@@ -59,7 +59,7 @@ class ChainUnit:
         return hashlib.sha256(json.dumps(self.__get_dict_from_block(), sort_keys=True).encode()).hexdigest()
 
     def __get_dict_from_block(self):
-        _excluded_keys = ["hash"]  # We exclude `hash` key when calculating block's hash
+        _excluded_keys = get_config().blockchain.exclude_to_hash  # We exclude `hash` key when calculating block's hash
         return dict(
             (key, value)
             for (key, value) in self.__dict__.items()
@@ -81,3 +81,7 @@ def load_yml(file):
 
 def get_config():
     return PyChainConfig(**load_yml(Path(__file__).parent / '..' / 'config.yml'))
+
+
+def hex2bytes(data):
+    return bytes(bytearray.fromhex(data))
