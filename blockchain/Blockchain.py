@@ -26,7 +26,7 @@ class Blockchain:
         print(f"Block successfully mined!")
         self.chain.append(block)
         self.pending_transaction = [
-            vars(Transaction(from_address="mining_reward_addr",
+            vars(Transaction(from_address="",
                              to_address=mining_reward_address,
                              amount=self.mining_reward))
         ]

@@ -19,3 +19,10 @@ class Block(BaseDataclass, ChainUnit):
             self.hash = self.calculate_hash()
 
         print(f"Block mined: {self.hash}")
+
+    def has_valid_transaction(self):
+        for transaction in self.transactions:
+            if not transaction.is_valid():
+                return False
+
+        return True
