@@ -1,17 +1,16 @@
 import unittest
 
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
 from blockchain.Transaction import Transaction
+from utils.utils import get_address_from_key
 
 
 class TestTransaction(unittest.TestCase):
 
     def test_transaction(self):
         private_key = ed25519.Ed25519PrivateKey.generate()
-        address = private_key.public_key().public_bytes(encoding=serialization.Encoding.Raw,
-                                                        format=serialization.PublicFormat.Raw).hex()
+        address = get_address_from_key(private_key)
         transaction = Transaction(to_address="",
                                   from_address=address,
                                   amount=10)
@@ -20,4 +19,3 @@ class TestTransaction(unittest.TestCase):
     def run_transaction_is_valid(self, transaction, private_key):
         transaction.sign_transaction(private_key)
         self.assertTrue(transaction.is_valid())
-

@@ -1,13 +1,13 @@
 import time
-
-from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import ed25519
 from dataclasses import dataclass
 
-from utils.utils import BaseDataclass, ChainUnit, hex2bytes
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives.asymmetric import ed25519
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-# TODO lookup how Bitcoin generates wallter address
+from utils.utils import BaseDataclass, ChainUnit, hex2bytes, get_address_from_key
+
+# TODO lookup how Bitcoin generates wallet address
 # https://medium.com/@tunatore/how-to-generate-bitcoin-addresses-technical-address-generation-explanation-and-online-course-a6b46a2fe866
 # TODO add sender_public_key to transaction
 # and check that address is generated from public key
@@ -16,8 +16,7 @@ from utils.utils import BaseDataclass, ChainUnit, hex2bytes
 
 key = "ca26b1359ee7ed099d61d361390a36e4e40fcd948d6c7e41dd28e43bb08e7339"
 private_key = ed25519.Ed25519PrivateKey.from_private_bytes(hex2bytes(key))
-address = private_key.public_key().public_bytes(encoding=serialization.Encoding.Raw,
-                                                format=serialization.PublicFormat.Raw).hex()
+address = get_address_from_key(private_key)
 """
 
 
@@ -29,14 +28,13 @@ class Transaction(BaseDataclass, ChainUnit):
     timestamp: float = time.time()
     signature: str = None
 
-    def sign_transaction(self, signing_key):
-        if signing_key.public_key().public_bytes(encoding=serialization.Encoding.Raw,
-                                                 format=serialization.PublicFormat.Raw).hex() != self.from_address:
+    def sign_transaction(self, signing_key: Ed25519PrivateKey) -> None:
+        if get_address_from_key(signing_key) != self.from_address:
             raise Exception("You cannot sign transaction for other wallets")
 
         self.signature = signing_key.sign(self.calculate_hash().encode()).hex()
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         if not self.from_address:
             return True
 

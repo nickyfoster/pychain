@@ -1,6 +1,6 @@
 from flask import Flask
 
-
+from flask_app.BlockchainAPI import app
 
 key = "ca26b1359ee7ed099d61d361390a36e4e40fcd948d6c7e41dd28e43bb08e7339"
 if __name__ == '__main__':

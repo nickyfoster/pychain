@@ -8,8 +8,14 @@ from logging.config import dictConfig
 from pathlib import Path
 
 import yaml
+from cryptography.hazmat.primitives import serialization
 
 from log_config import LOG_CONFIG
+
+
+def get_address_from_key(key):
+    return key.public_key().public_bytes(encoding=serialization.Encoding.Raw,
+                                         format=serialization.PublicFormat.Raw).hex()
 
 
 def get_logger(name="main"):

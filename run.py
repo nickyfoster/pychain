@@ -1,17 +1,12 @@
-from pprint import pprint
-
-from blockchain.Blockchain import Blockchain
-
-from blockchain.Transaction import Transaction
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from utils.utils import hex2bytes
+from blockchain.Blockchain import Blockchain
+from blockchain.Transaction import Transaction
+from utils.utils import hex2bytes, get_address_from_key
 
 key = "ca26b1359ee7ed099d61d361390a36e4e40fcd948d6c7e41dd28e43bb08e7339"
 private_key = ed25519.Ed25519PrivateKey.from_private_bytes(hex2bytes(key))
-address = private_key.public_key().public_bytes(encoding=serialization.Encoding.Raw,
-                                                format=serialization.PublicFormat.Raw).hex()
+address = get_address_from_key(private_key)
 chain = Blockchain()
 
 for x in range(2):

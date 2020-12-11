@@ -1,23 +1,17 @@
 import json
-from pprint import pprint
-
-from redis import Redis
+from typing import Iterable
 
 from blockchain.Block import Block
 from blockchain.Transaction import Transaction
-from utils.utils import get_config, get_logger
-
-import logging
+from services.RedisClient import RedisClient
+from utils.utils import get_config, get_logger, PyChainConfig
 
 
 class Blockchain:
-    def __init__(self):
+    def __init__(self, config: PyChainConfig = None):
         self.pending_transaction = []
-        self.config = get_config()
-        self.redis_client = Redis(host=self.config.redis.host,
-                                  port=self.config.redis.port,
-                                  db=self.config.redis.db,
-                                  password=self.config.redis.password)
+        self.config = config or get_config()
+        self.redis_client = RedisClient(self.config.redis).client
         self.difficulty = self.config.blockchain.difficulty
         self.mining_reward = self.config.blockchain.mining_reward
         self.redis_blockchain_key = "blockchain"
@@ -25,14 +19,17 @@ class Blockchain:
 
         self.create_genesis_block()
 
-    def push_new_block(self, block):
+    def push_new_block(self, block: Block) -> None:
         self.redis_client.lpush(self.redis_blockchain_key, json.dumps(vars(block)))
 
-    def get_last_block(self):
+    def get_last_block(self) -> Block:
         last_block = json.loads(self.redis_client.lindex(self.redis_blockchain_key, index=0))
         return Block.from_dict(last_block)
 
-    def get_chain(self):
+    def delete_blockchain(self) -> None:
+        self.redis_client.delete(self.redis_blockchain_key)
+
+    def get_chain(self) -> Iterable[Block]:
         res = []
         chain = self.redis_client.lrange(self.redis_blockchain_key, 0, -1)
         if chain:
@@ -41,27 +38,27 @@ class Blockchain:
 
         return res
 
-    def create_genesis_block(self):
+    def create_genesis_block(self) -> Block:
         genesis_block = Block()
         genesis_block.hash = genesis_block.calculate_hash()
         if not self.get_chain():
             self.push_new_block(genesis_block)
         return genesis_block
 
-    def get_all_transactions_for_wallet(self, address):
+    def get_all_transactions_for_wallet(self, address: str) -> Iterable[Transaction]:
         txs = []
         chain = self.get_chain()
         for block in chain:
             if block.transactions:
-                for tx in block.transactions:
-                    if tx:
-                        _tx = Transaction.from_dict(tx)
-                        if _tx.from_address == address or _tx.to_address == address:
+                for _tx in block.transactions:
+                    if _tx:
+                        tx = Transaction.from_dict(_tx)
+                        if tx.from_address == address or tx.to_address == address:
                             txs.append(tx)
 
         return txs
 
-    def mine_pending_transaction(self, mining_reward_address):
+    def mine_pending_transaction(self, mining_reward_address: str) -> Block:
         reward_tx = Transaction(None, mining_reward_address, self.mining_reward)
         self.pending_transaction.append(vars(reward_tx))
 
@@ -77,7 +74,7 @@ class Blockchain:
         self.pending_transaction = []
         return block
 
-    def add_transaction(self, transaction):
+    def add_transaction(self, transaction: Transaction) -> None:
         if not transaction.from_address or not transaction.to_address:
             raise Exception("Transaction must have from and to address")
 
@@ -94,7 +91,7 @@ class Blockchain:
         self.pending_transaction.append(vars(transaction))
         self.logger.info(f"Transaction added: {vars(transaction)}")
 
-    def get_address_balance(self, address):
+    def get_address_balance(self, address: str) -> int:
         balance = 0
         chain = self.get_chain()
         for block in chain:
@@ -110,7 +107,7 @@ class Blockchain:
 
         return balance
 
-    def validate_chain(self):
+    def validate_chain(self) -> bool:
         # TODO add block index checking
         chain = self.get_chain()  # TODO optimize return of all chain
 
@@ -127,7 +124,6 @@ class Blockchain:
                 return False
 
             if current_block.previous_hash != previous_block.hash:
-
                 self.logger.warning("Previous block hash does not equal to current block's previous hash")
                 self.logger.warning(current_block)
                 self.logger.warning(previous_block)
