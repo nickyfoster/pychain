@@ -23,7 +23,11 @@ class TestBlockchain(unittest.TestCase):
         address = get_address_from_key(private_key)
 
         for x in range(2):
-            tx = Transaction(address, "mock_receiver", 10)
+            data = {"from_address": address,
+                    "to_address": "mock_receiver",
+                    "amount": 10}
+            tx = Transaction(data=data)
+            print(tx)
             tx.sign_transaction(private_key)
             chain.add_transaction(tx)
 

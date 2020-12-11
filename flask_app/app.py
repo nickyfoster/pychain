@@ -1,7 +1,15 @@
-from flask import Flask
+from flask import session
 
 from flask_app.BlockchainAPI import app
+from services.RedisClient import RedisClient
+from utils.utils import get_config
 
-key = "ca26b1359ee7ed099d61d361390a36e4e40fcd948d6c7e41dd28e43bb08e7339"
+config = get_config()
+app.secret_key = config.server.secret_key
+app.config['SESSION_TYPE'] = config.server.session_type
+
+if config.server.session_type == "redis":
+    app.config['SESSION_REDIS'] = RedisClient(config.redis).client
+
 if __name__ == '__main__':
-    app.run(port=5005)
+    app.run(host=config.server.host, port=5005)

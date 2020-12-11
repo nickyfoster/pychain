@@ -5,7 +5,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from utils.utils import BaseDataclass, ChainUnit, hex2bytes, get_address_from_key
+from utils.utils import BaseDataclass, ChainUnit, hex2bytes, get_address_from_key, nested_dataclass
 
 # TODO lookup how Bitcoin generates wallet address
 # https://medium.com/@tunatore/how-to-generate-bitcoin-addresses-technical-address-generation-explanation-and-online-course-a6b46a2fe866
@@ -20,28 +20,31 @@ address = get_address_from_key(private_key)
 """
 
 
+# TODO add type and data sections into Transaction
 @dataclass()
 class Transaction(BaseDataclass, ChainUnit):
-    from_address: str
-    to_address: str
-    amount: int
+    data: dict = None
+    type: str = "regular"
+    version: str = "v1"
     timestamp: float = time.time()
     signature: str = None
+    txid: str = None
 
     def sign_transaction(self, signing_key: Ed25519PrivateKey) -> None:
-        if get_address_from_key(signing_key) != self.from_address:
+        if get_address_from_key(signing_key) != self.data["from_address"]:
             raise Exception("You cannot sign transaction for other wallets")
-
-        self.signature = signing_key.sign(self.calculate_hash().encode()).hex()
+        txid = self.calculate_hash()
+        self.signature = signing_key.sign(txid.encode()).hex()
+        self.txid = txid
 
     def is_valid(self) -> bool:
-        if not self.from_address:
+        if not self.data["from_address"]:
             return True
 
         if not self.signature or len(self.signature) == 0:
             raise Exception("No signature in this transaction")
 
-        public_key = ed25519.Ed25519PublicKey.from_public_bytes(hex2bytes(self.from_address))
+        public_key = ed25519.Ed25519PublicKey.from_public_bytes(hex2bytes(self.data["from_address"]))
         try:
             public_key.verify(signature=hex2bytes(self.signature),
                               data=self.calculate_hash().encode())

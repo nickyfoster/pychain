@@ -11,10 +11,11 @@ class TestTransaction(unittest.TestCase):
     def test_transaction(self):
         private_key = ed25519.Ed25519PrivateKey.generate()
         address = get_address_from_key(private_key)
-        transaction = Transaction(to_address="",
-                                  from_address=address,
-                                  amount=10)
-        self.run_transaction_is_valid(transaction, private_key)
+        data = {"from_address": address,
+                "to_address": "mock_receiver",
+                "amount": 10}
+        tx = Transaction(data=data)
+        self.run_transaction_is_valid(tx, private_key)
 
     def run_transaction_is_valid(self, transaction, private_key):
         transaction.sign_transaction(private_key)

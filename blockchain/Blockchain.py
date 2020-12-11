@@ -59,7 +59,10 @@ class Blockchain:
         return txs
 
     def mine_pending_transaction(self, mining_reward_address: str) -> Block:
-        reward_tx = Transaction(None, mining_reward_address, self.mining_reward)
+        data = {"from_address": None,
+                "to_address": mining_reward_address,
+                "amount": self.mining_reward}
+        reward_tx = Transaction(data=data)
         self.pending_transaction.append(vars(reward_tx))
 
         block = Block(transactions=self.pending_transaction)
@@ -75,7 +78,7 @@ class Blockchain:
         return block
 
     def add_transaction(self, transaction: Transaction) -> None:
-        if not transaction.from_address or not transaction.to_address:
+        if not transaction.data["from_address"] or not transaction.data["to_address"]:
             raise Exception("Transaction must have from and to address")
 
         if not transaction.is_valid():
@@ -100,10 +103,10 @@ class Blockchain:
                     # TODO check for negative amount of money
                     for transaction in block.transactions:
                         _transaction = Transaction.from_dict(transaction)
-                        if _transaction.from_address == address:
-                            balance -= _transaction.amount
-                        if _transaction.to_address == address:
-                            balance += _transaction.amount
+                        if _transaction.data["from_address"] == address:
+                            balance -= _transaction.data["amount"]
+                        if _transaction.data["to_address"] == address:
+                            balance += _transaction.data["amount"]
 
         return balance
 

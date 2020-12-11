@@ -71,10 +71,19 @@ class RedisConfig:
     db: int
 
 
+@dataclass
+class ServerConfig:
+    host: str
+    port: int
+    session_type: str
+    secret_key: str
+
+
 @nested_dataclass
 class PyChainConfig:
     blockchain: BlockchainConfig
     redis: RedisConfig
+    server: ServerConfig
 
 
 class ChainUnit:

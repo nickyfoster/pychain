@@ -1,7 +1,7 @@
 import json
 from uuid import uuid4
 
-from flask import jsonify, request, Flask
+from flask import jsonify, request, Flask, session
 
 from blockchain.Blockchain import Blockchain
 from blockchain.Transaction import Transaction
@@ -26,23 +26,54 @@ def node():
     return jsonify(response), 200
 
 
-@app.route('/create_wallet', methods=["POST"])
-def create_wallet():
+@app.route("/logout")
+def logout():
+    session.clear()
+    return {}, 200
+
+
+@app.route('/login', methods=["POST"])
+def login():
     params = request.get_json()
 
-    required_params = ['seed']
+    required_params = ['password']
     if not all(k in params for k in required_params):
         return 'Missing transaction parameters', 400
 
     wallet = Wallet()
-    wallet.generate_keypair(params["seed"])
+    wallet.generate_keypair(params["password"])
+    exists = wallet.wallet_exists()
+    if exists:
+        session["address"] = wallet.address
+        return jsonify({
+            "login_success": True,
+            "address": wallet.address
+        }), 200
+    else:
+        del wallet
+        return jsonify({
+            "login_success": False,
+            "reason": "Wallet does not exists"
+        }), 409
+        pass
+
+
+@app.route('/create_wallet', methods=["POST"])
+def create_wallet():
+    params = request.get_json()
+
+    required_params = ['password']
+    if not all(k in params for k in required_params):
+        return 'Missing transaction parameters', 400
+
+    wallet = Wallet()
+    wallet.generate_keypair(params["password"])
     if wallet.create_wallet():
         return jsonify({
             "created": True,
             "address": wallet.address
         }), 200
     else:
-        print("Wallet exists")
         return jsonify({
             "created": False,
             "reason": "Wallet exists"
@@ -52,25 +83,32 @@ def create_wallet():
 
 @app.route("/mine")
 def mine():
-    current_addresses = redis_client.keys("WALLET:*")
-    for addr in current_addresses:
-        address = addr.decode()[7:]
-        break
-    mined_block = blockchain.mine_pending_transaction(mining_reward_address=address)
-    return jsonify(vars(mined_block)), 200
+    address = session.get("address")
+    if address:
+        mined_block = blockchain.mine_pending_transaction(mining_reward_address=address)
+        return jsonify(vars(mined_block)), 200
+    else:
+        return jsonify({
+            "reason": "Not authorized with wallet",
+            "hist": "Use /login to login into your wallet"
+        }), 401
 
 
 @app.route("/get_balance")
 def get_balance():
-    current_addresses = redis_client.keys("WALLET:*")
-    for addr in current_addresses:
-        address = addr.decode()[7:]
-        break
-    balance = blockchain.get_address_balance(address=address)
-    return jsonify({
-        "wallet_id": address,
-        "balance": balance
-    }), 200
+    address = session.get("address")
+    if address:
+        balance = blockchain.get_address_balance(address=address)
+        return jsonify({
+            "wallet_id": address,
+            "balance": balance
+        }), 200
+    else:
+        return jsonify({
+            "reason": "Not authorized with wallet",
+            "hist": "Use /login to login into your wallet"
+        }), 401
+
 
 @app.route("/chain")
 def get_chain():
@@ -90,6 +128,16 @@ def validate_chain():
     return jsonify(response), 200
 
 
+@app.route("/test")
+def test():
+    for key in session.keys():
+        session.pop(key)
+    response = {
+        "sessions": "ass"
+    }
+    return jsonify(response), 200
+
+
 @app.route("/pending_transactions")
 def pending_transactions():
     pending_transactions = [transaction for transaction in blockchain.pending_transaction]
@@ -97,6 +145,7 @@ def pending_transactions():
         "pending_transactions": pending_transactions
     }
     return jsonify(response), 200
+
 
 @app.route("/transactions/new", methods=["POST"])
 def new_transaction():
@@ -117,9 +166,10 @@ def new_transaction():
             wallet_data = json.loads(redis_client.get(f"WALLET:{from_address}"))
             break
     if wallet_data:
-        tx = Transaction(from_address=from_address,
-                         to_address=to_address,
-                         amount=amount)
+        data = {"from_address": from_address,
+                "to_address": to_address,
+                "amount": amount}
+        tx = Transaction(data=data)
         tx.sign_transaction(Wallet.get_private_obj_from_hex(wallet_data["private_key"]))
 
         blockchain.add_transaction(tx)

@@ -1,9 +1,16 @@
+server:
+  host: 127.0.0.1
+  port: 5005
+  session_type: redis
+  secret_key: CHANGE_ME
+
 blockchain:
   difficulty: 2
   mining_reward: 100
   exclude_to_hash:
     - hash
     - signature
+    - txid
 
 redis:
   host: 127.0.0.1
