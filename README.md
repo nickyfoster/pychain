@@ -1,4 +1,4 @@
-## PyChain
+# PyChain
 
 A small example of how blockchain technology works with help of Python programming language.
 
