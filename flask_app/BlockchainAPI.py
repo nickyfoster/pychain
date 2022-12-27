@@ -1,22 +1,31 @@
 import json
 from uuid import uuid4
 
-from flask import jsonify, request, Flask, session
+from flask import jsonify, request, Flask, session, render_template
 
 from blockchain.Blockchain import Blockchain
 from blockchain.Transaction import Transaction
 from blockchain.Wallet import Wallet
 from services.RedisClient import RedisClient
 from utils.utils import get_config
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 node_uid = str(uuid4()).replace("-", "")
 
 config = get_config()
 blockchain = Blockchain()
 redis_client = RedisClient(config.redis).client
 
+
+@app.route("/")
+def test():
+    return render_template("index.html")
+
+@app.route("/index")
+def index():
+    return render_template("base.html")
 
 @app.route("/node")
 def node():
@@ -36,9 +45,9 @@ def logout():
 def login():
     params = request.get_json()
 
-    required_params = ['password']
+    required_params = ["password"]
     if not all(k in params for k in required_params):
-        return 'Missing transaction parameters', 400
+        return "Missing transaction parameters", 400
 
     wallet = Wallet()
     wallet.generate_keypair(params["password"])
@@ -62,9 +71,9 @@ def login():
 def create_wallet():
     params = request.get_json()
 
-    required_params = ['password']
+    required_params = ["password"]
     if not all(k in params for k in required_params):
-        return 'Missing transaction parameters', 400
+        return "Missing transaction parameters", 400
 
     wallet = Wallet()
     wallet.generate_keypair(params["password"])
@@ -128,16 +137,6 @@ def validate_chain():
     return jsonify(response), 200
 
 
-@app.route("/test")
-def test():
-    for key in session.keys():
-        session.pop(key)
-    response = {
-        "sessions": "ass"
-    }
-    return jsonify(response), 200
-
-
 @app.route("/pending_transactions")
 def pending_transactions():
     pending_transactions = [transaction for transaction in blockchain.pending_transaction]
@@ -151,9 +150,9 @@ def pending_transactions():
 def new_transaction():
     params = request.get_json()
 
-    required_params = ['from_address', 'to_address', 'amount']
+    required_params = ["from_address", "to_address", "amount"]
     if not all(k in params for k in required_params):
-        return 'Missing transaction parameters', 400
+        return "Missing transaction parameters", 400
 
     wallet_data = None
     from_address = params["from_address"]
