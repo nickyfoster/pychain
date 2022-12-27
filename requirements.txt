@@ -1,0 +1,4 @@
+PyYAML~=5.1.2
+dataclasses~=0.7
+cryptography~=3.3
+cryptopy
