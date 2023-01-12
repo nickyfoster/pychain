@@ -50,7 +50,7 @@ def login():
         return "Missing transaction parameters", 400
 
     wallet = Wallet()
-    wallet.generate_keypair(params["password"])
+    wallet.generate_keypair(str(params["password"]))
     exists = wallet.wallet_exists()
     if exists:
         session["address"] = wallet.address
@@ -76,7 +76,7 @@ def create_wallet():
         return "Missing transaction parameters", 400
 
     wallet = Wallet()
-    wallet.generate_keypair(params["password"])
+    wallet.generate_keypair(str(params["password"]))
     if wallet.create_wallet():
         return jsonify({
             "created": True,

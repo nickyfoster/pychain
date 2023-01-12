@@ -31,6 +31,7 @@ class Transaction(BaseDataclass, ChainUnit):
     txid: str = None
 
     def sign_transaction(self, signing_key: Ed25519PrivateKey) -> None:
+        print(self.data)
         if get_address_from_key(signing_key) != self.data["from_address"]:
             raise Exception("You cannot sign transaction for other wallets")
         txid = self.calculate_hash()

@@ -103,6 +103,7 @@ class Blockchain:
                     # TODO check for negative amount of money
                     for transaction in block.transactions:
                         _transaction = Transaction.from_dict(transaction)
+                        print(_transaction.data)
                         if _transaction.data["from_address"] == address:
                             balance -= _transaction.data["amount"]
                         if _transaction.data["to_address"] == address:
