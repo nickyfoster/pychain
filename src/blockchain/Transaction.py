@@ -5,7 +5,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from utils.utils import BaseDataclass, ChainUnit, hex2bytes, get_address_from_key, nested_dataclass
+from src.utils.utils import BaseDataclass, ChainUnit, hex2bytes, get_address_from_key
 
 # TODO lookup how Bitcoin generates wallet address
 # https://medium.com/@tunatore/how-to-generate-bitcoin-addresses-technical-address-generation-explanation-and-online-course-a6b46a2fe866

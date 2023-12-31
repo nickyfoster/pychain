@@ -1,10 +1,10 @@
 import json
 from typing import Iterable
 
-from blockchain.Block import Block
-from blockchain.Transaction import Transaction
-from services.RedisClient import RedisClient
-from utils.utils import get_config, get_logger, PyChainConfig
+from src.blockchain.Block import Block
+from src.blockchain.Transaction import Transaction
+from src.services.RedisClient import RedisClient
+from src.utils.utils import get_config, get_logger, PyChainConfig
 
 
 class Blockchain:
@@ -29,7 +29,7 @@ class Blockchain:
     def delete_blockchain(self) -> None:
         self.redis_client.delete(self.redis_blockchain_key)
 
-    def get_chain(self) -> Iterable[Block]:
+    def get_chain(self) -> list[Block]:
         res = []
         chain = self.redis_client.lrange(self.redis_blockchain_key, 0, -1)
         if chain:
@@ -87,7 +87,7 @@ class Blockchain:
         if not transaction:  # the amount of transactions is bigger than 0
             raise Exception("Transactions amount should be bigger than 0")
 
-        # TODO uncomment
+        # TODO revert
         # if self.get_address_balance(transaction.from_address) < transaction.amount:
         #     raise Exception("Not enought balance")
 
@@ -100,7 +100,7 @@ class Blockchain:
         for block in chain:
             if block.transactions:
                 if len(block.transactions) > 0:
-                    # TODO check for negative amount of money
+                    # TODO check for negative amount
                     for transaction in block.transactions:
                         _transaction = Transaction.from_dict(transaction)
                         print(_transaction.data)
@@ -113,7 +113,7 @@ class Blockchain:
 
     def validate_chain(self) -> bool:
         # TODO add block index checking
-        chain = self.get_chain()  # TODO optimize return of all chain
+        chain = self.get_chain()  # TODO optimize returning all
 
         for i in range(1, len(chain)):
             current_block = chain[i]

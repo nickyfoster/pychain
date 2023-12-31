@@ -1,8 +1,8 @@
 import time
 from dataclasses import dataclass
 
-from blockchain.Transaction import Transaction
-from utils.utils import BaseDataclass, ChainUnit
+from src.blockchain.Transaction import Transaction
+from src.utils.utils import BaseDataclass, ChainUnit
 
 
 @dataclass()
