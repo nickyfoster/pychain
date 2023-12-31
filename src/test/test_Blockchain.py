@@ -2,9 +2,9 @@ import unittest
 
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from blockchain.Blockchain import Blockchain
-from blockchain.Transaction import Transaction
-from utils.utils import hex2bytes, get_config, get_address_from_key
+from src.blockchain.Blockchain import Blockchain
+from src.blockchain.Transaction import Transaction
+from src.utils.utils import hex2bytes, get_config, get_address_from_key
 
 
 class TestBlockchain(unittest.TestCase):

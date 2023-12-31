@@ -5,8 +5,8 @@ import time
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from services.RedisClient import RedisClient
-from utils.utils import hex2bytes, get_address_from_key, get_config
+from src.services.RedisClient import RedisClient
+from src.utils.utils import hex2bytes, get_address_from_key, get_config
 
 
 class Wallet:

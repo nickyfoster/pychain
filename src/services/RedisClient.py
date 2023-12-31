@@ -1,8 +1,6 @@
-import json
-
 from redis import Redis, exceptions
 
-from utils.utils import RedisConfig, get_config
+from src.utils.utils import RedisConfig
 
 
 class RedisClient:
@@ -16,12 +14,3 @@ class RedisClient:
             self.client.keys()
         except (exceptions.ConnectionError, ConnectionRefusedError):
             raise Exception("Failed to connect to Redis server")
-
-
-if __name__ == '__main__':
-    client = RedisClient(get_config().redis).client
-    current_addresses = client.keys("WALLET:*")
-    for addr in current_addresses:
-        print()
-        # res =
-        # print(res)

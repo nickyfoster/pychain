@@ -10,7 +10,7 @@ from pathlib import Path
 import yaml
 from cryptography.hazmat.primitives import serialization
 
-from log_config import LOG_CONFIG
+from src.utils.log_config import LOG_CONFIG
 
 
 def get_address_from_key(key):
